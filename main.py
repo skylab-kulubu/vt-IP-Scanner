@@ -1,6 +1,7 @@
 import requests
 import json
 import argparse
+import os
 
 parser = argparse.ArgumentParser(description="This is a simple script to get the last analysis stats of an IP address from VirusTotal")
 # IP Address File
@@ -17,15 +18,18 @@ args = parser.parse_args()
 
 headers = {
     "accept": "application/json",
-    "X-Apikey": "e313477a3fd0ef5dee51456071dc12430270ea5e08c6dae4198c9831e637b5b3"
+    "X-Apikey": os.getenv("VT_API_KEY")
 }
+
+if not headers["X-Apikey"]:
+    raise ValueError("API key not found. Please set the VT_API_KEY environment variable.")
 
 def is_ytu(data):
     if "Yildiz Teknik University" in data["data"]["attributes"]["whois"]:
         print("\033[94mThis IP belongs to Yildiz Teknik University\033[0m")
 
 def is_malicious(data):
-    if data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 0:
+    if (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 0) and not (data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 20):
         print("\033[91m\033[1mThis IP is malicious\033[0m")
     else:
         print("\033[92mThis IP is not malicious\033[0m")
