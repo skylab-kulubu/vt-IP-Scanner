@@ -29,7 +29,7 @@ def is_ytu(data):
         print("\033[94mThis IP belongs to Yildiz Teknik University\033[0m")
 
 def is_malicious(data):
-    if (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 0) and not (data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 20):
+    if (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 0) and  ((data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 20) and not (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 20 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 20)):
         print("\033[91m\033[1mThis IP is malicious\033[0m")
     else:
         print("\033[92mThis IP is not malicious\033[0m")
