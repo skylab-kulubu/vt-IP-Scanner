@@ -24,9 +24,16 @@ headers = {
 if not headers["X-Apikey"]:
     raise ValueError("API key not found. Please set the VT_API_KEY environment variable.")
 
+def check_whois(data,x:str,y:str=None):
+    if y ==None: y=x
+    if x.lower() in data["data"]["attributes"]["whois"].lower():
+        print(f"\033[94mThis IP belongs to {y}\033[0m")
+        
 def is_ytu(data):
-    if "Yildiz Teknik University" in data["data"]["attributes"]["whois"]:
-        print("\033[94mThis IP belongs to Yildiz Teknik University\033[0m")
+    check_whois(data,"yildiz","YTÜ")
+    
+def is_google(data):
+    check_whois(data,"google","Google")
 
 def is_malicious(data):
     if (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 0) and  ((data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 20) and not (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 20 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 20)):
@@ -40,6 +47,7 @@ def get_ip_analysis(headers, ip):
     data = json.loads(response.text)
     print(f"----------------IP: {ip} - {data['data']['attributes']['last_analysis_stats']}----------------")
     is_ytu(data)
+    is_google(data)
     is_malicious(data)
 
 if args.mode == "file":
