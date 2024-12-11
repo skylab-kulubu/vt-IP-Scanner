@@ -36,7 +36,10 @@ def is_google(data):
     check_whois(data,"google","Google")
 
 def is_malicious(data):
-    if (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 0 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 0) and  ((data["data"]["attributes"]["last_analysis_stats"]["harmless"] > 20) and not (data["data"]["attributes"]["last_analysis_stats"]["malicious"] > 20 or data["data"]["attributes"]["last_analysis_stats"]["suspicious"] > 20)):
+    malicious_value = data["data"]["attributes"]["last_analysis_stats"]["malicious"]
+    suspicious_value = data["data"]["attributes"]["last_analysis_stats"]["suspicious"]
+    harmless_value = data["data"]["attributes"]["last_analysis_stats"]["harmless"]
+    if (malicious_value > 0 or suspicious_value > 0) and  ((harmless_value > 20) and not (malicious_value > 20 or suspicious_value > 20)):
         print("\033[91m\033[1mThis IP is malicious\033[0m")
     else:
         print("\033[92mThis IP is not malicious\033[0m")
@@ -45,7 +48,16 @@ def get_ip_analysis(headers, ip):
     url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
     response = requests.get(url, headers=headers)
     data = json.loads(response.text)
-    print(f"----------------IP: {ip} - {data['data']['attributes']['last_analysis_stats']}----------------")
+    try:
+        last_analysis_statistics = data["data"]["attributes"]["last_analysis_stats"]
+    except KeyError:
+        if data["error"]["code"] == "QuotaExceededError":
+            print("\033[91mQuota exceeded. Please try again later.\033[0m")
+            quit()
+        else:
+            print("\033[91mSomethig went wrong. Please try again later.\033[0m")
+            quit()
+    print(f"----------------IP: {ip} - {last_analysis_statistics}----------------")
     is_ytu(data)
     is_google(data)
     is_malicious(data)
