@@ -26,8 +26,12 @@ if not headers["X-Apikey"]:
 
 def check_whois(data,x:str,y:str=None):
     if y ==None: y=x
-    if x.lower() in data["data"]["attributes"]["whois"].lower():
-        print(f"\033[94mThis IP belongs to {y}\033[0m")
+    whois = data["data"]["attributes"]["whois"]
+    try:    
+        if x.lower() in whois.lower():
+            print(f"\033[94mThis IP belongs to {y}\033[0m")
+    except KeyError:
+        print(f"\033[91mWhois information not found for {x}\033[0m")
         
 def is_ytu(data):
     check_whois(data,"yildiz","YTÜ")
