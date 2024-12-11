@@ -32,3 +32,17 @@ options:
   -h, --help      show this help message and exit
   -i IP, --ip IP  Single IP address
 ```
+
+## CLI Cheat Sheet
+
+```bash
+python3 main.py file -f ip_addresses.txt| tee [-a] report
+```
+
+```bash
+cat report| grep -i "belongs" -B 1
+```
+
+```bash
+cat report| grep -i "not malicious" -B 1
+```
