@@ -72,3 +72,8 @@ cat report| grep -i "not malicious" -B 1
 ```bash
 cat report| grep -i "not malicious" -B 2
 ```
+
+#### Extract IPv4 Addresses
+```bash
+grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b"
+```
