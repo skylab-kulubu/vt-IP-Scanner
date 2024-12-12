@@ -2,21 +2,22 @@
 Virustotal API Scanner
 
 ```
-❯ python3 main.py 
-usage: main.py [-h] {file,single} ...
+usage: main.py [-h] {file,single,upload} ...
 
 This is a simple script to get the last analysis stats of an IP address from VirusTotal
 
 positional arguments:
-  {file,single}
-    file         File mode
-    single       Single mode
+  {file,single,upload}
+    file                File mode
+    single              Single mode
+    upload              Upload mode
 
 options:
-  -h, --help     show this help message and exit
+  -h, --help            show this help message and exit
 ```
+
+## Mass IP Scan
 ```
-❯ python3 main.py file
 usage: main.py file [-h] -f FILE
 
 options:
@@ -24,8 +25,8 @@ options:
   -f FILE, --file FILE  File with IP addresses
 ```
 
+## Single IP Scan
 ```
-❯ python3 main.py single
 usage: main.py single [-h] -i IP
 
 options:
@@ -33,7 +34,24 @@ options:
   -i IP, --ip IP  Single IP address
 ```
 
+## File Scan
+```
+usage: main.py upload [-h] -u UPLOAD
+
+options:
+  -h, --help            show this help message and exit
+  -u UPLOAD, --upload UPLOAD
+                        File to upload
+```
+
 ## CLI Cheat Sheet
+
+### Setup (Sudo Required)
+```bash
+bash setup.sh
+```
+
+### Data Search
 
 ```bash
 python3 main.py file -f ip_addresses.txt| tee [-a] report
@@ -44,5 +62,13 @@ cat report| grep -i "belongs" -B 1
 ```
 
 ```bash
+cat report| grep -i "belongs" -B 2
+```
+
+```bash
 cat report| grep -i "not malicious" -B 1
+```
+
+```bash
+cat report| grep -i "not malicious" -B 2
 ```
