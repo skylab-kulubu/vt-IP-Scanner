@@ -13,7 +13,7 @@ subparser = parser.add_subparsers(dest="mode")
 file_parser = subparser.add_parser("file", help="File mode")
 file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
 file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
-file_parser.add_argument("-o","--output", help="Output file")
+file_parser.add_argument("-o","--output", help="Output file",default="ip_addresses.txt")
 file_parser.add_argument("-r","--report", help="Report file",default="report.txt")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
@@ -31,9 +31,7 @@ headers = {
 }
 
 
-def write_ipv4_addresses(ipv4_addresses:list,file_path:str="ip_addresses.txt"):
-    if args.output:
-        file_path = args.output
+def write_ipv4_addresses(ipv4_addresses:list,file_path:str=args.outout):
     with open(file_path, 'a') as file:
         for ip in ipv4_addresses:
             file.write(f"{ip}\n")
