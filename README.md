@@ -2,7 +2,7 @@
 Virustotal API Scanner
 
 ```
-usage: main.py [-h] {file,single,upload} ...
+usage: main.py [-h] [-y] {file,single,upload} ...
 
 This is a simple script to get the last analysis stats of an IP address from VirusTotal
 
@@ -14,15 +14,21 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  -y, --yes             Force yes
 ```
 
 ## Mass IP Scan
 ```
-usage: main.py file [-h] -f FILE
+usage: main.py file [-h] -f FILE [-p] [-o OUTPUT] [-r REPORT]
 
 options:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  File with IP addresses
+  -p, --parse           Parse file for IP addresses
+  -o OUTPUT, --output OUTPUT
+                        Output file
+  -r REPORT, --report REPORT
+                        Report file
 ```
 
 ## Single IP Scan
