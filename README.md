@@ -50,6 +50,12 @@ options:
                         File to upload
 ```
 
+## Usage Examples
+
+```bash
+
+```
+
 ## CLI Cheat Sheet
 
 ### Setup (Sudo Required)

@@ -14,7 +14,7 @@ file_parser = subparser.add_parser("file", help="File mode")
 file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
 file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
 file_parser.add_argument("-o","--output", help="Output file")
-file_parser.add_argument("-r","--report", help="Report file")
+file_parser.add_argument("-r","--report", help="Report file",default="report.txt")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
 single_parser.add_argument("-i", "--ip", help="Single IP address", required=True)
