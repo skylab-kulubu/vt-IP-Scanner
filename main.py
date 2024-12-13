@@ -96,7 +96,6 @@ def get_ip_analysis(headers, ip):
     except KeyError:
         if data["error"]["code"] == "QuotaExceededError":
             print("\033[91mQuota exceeded. Please try again later.\033[0m")
-            ask_continue()
         else:
             print("\033[91mSomethig went wrong. Please try again later.\033[0m")
             wanna_continue = input("Do you want to continue? (y/n): ")
