@@ -1,7 +1,7 @@
 import requests
-import json
+from json import loads
 import argparse
-import os
+from os import getenv
 import re
 
 
@@ -27,7 +27,7 @@ args = parser.parse_args()
 
 headers = {
     "accept": "application/json",
-    "X-Apikey": os.getenv("VT_API_KEY")
+    "X-Apikey": getenv("VT_API_KEY")
 }
 
 
@@ -90,7 +90,7 @@ def is_malicious(data):
 def get_ip_analysis(headers, ip):
     url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
     response = requests.get(url, headers=headers)
-    data = json.loads(response.text)
+    data = loads(response.text)
     try:
         last_analysis_statistics = data["data"]["attributes"]["last_analysis_stats"]
     except KeyError:
@@ -115,7 +115,7 @@ def check_file_upload(headers, file):
     with open(file, "rb") as file:
         files = {"file": file}
         response = requests.post(url, headers=headers, files=files)
-        data = json.loads(response.text)
+        data = loads(response.text)
 
         if response.status_code == 200:
             analysis_id = data["data"]["id"]
@@ -129,7 +129,7 @@ def check_file_analysis(headers, analysis_id):
     url = f"https://www.virustotal.com/api/v3/analyses/{analysis_id}"
     while True:
         response = requests.get(url, headers=headers)
-        data = json.loads(response.text)
+        data = loads(response.text)
 
         if response.status_code == 200:
             status = data["data"]["attributes"]["status"]
