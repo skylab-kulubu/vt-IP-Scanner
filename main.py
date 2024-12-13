@@ -14,6 +14,7 @@ file_parser = subparser.add_parser("file", help="File mode")
 file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
 file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
 file_parser.add_argument("-o","--output", help="Output file")
+file_parser.add_argument("-r","--report", help="Report file")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
 single_parser.add_argument("-i", "--ip", help="Single IP address", required=True)
@@ -58,8 +59,12 @@ def check_whois(data,x:str,y:str=None):
     try:    
         if x.lower() in whois.lower():
             print(f"\033[94mThis IP belongs to {y}\033[0m")
+            if args.report:
+                with open(args.report, 'a') as file:
+                    file.write(f"This IP belongs to {y}\n")
     except KeyError:
         print(f"\033[91mWhois information not found for {x}\033[0m")
+    
         
 def is_ytu(data):
     check_whois(data,"yildiz","YTÜ")
@@ -73,8 +78,14 @@ def is_malicious(data):
     harmless_value = data["data"]["attributes"]["last_analysis_stats"]["harmless"]
     if (malicious_value > 0 or suspicious_value > 0) and  ((harmless_value > 20) and not (malicious_value > 20 or suspicious_value > 20)):
         print("\033[91m\033[1mThis IP is malicious\033[0m")
+        if args.report:
+            with open(args.report, 'a') as file:
+                file.write("This IP is malicious\n")
     else:
         print("\033[92mThis IP is not malicious\033[0m")
+        if args.report:
+            with open(args.report, 'a') as file:
+                file.write("This IP is not malicious\n")
 
 def get_ip_analysis(headers, ip):
     url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
@@ -90,7 +101,12 @@ def get_ip_analysis(headers, ip):
             print("\033[91mSomethig went wrong. Please try again later.\033[0m")
             wanna_continue = input("Do you want to continue? (y/n): ")
             ask_continue()
-    print(f"----------------IP: {ip} - {last_analysis_statistics}----------------")
+
+    analysis_string = f"----------------IP: {ip} - {last_analysis_statistics}----------------"
+    print(analysis_string)
+    if args.report:
+        with open(args.report, 'a') as file:
+            file.write(f"{analysis_string}\n")
     is_ytu(data)
     is_google(data)
     is_malicious(data)
