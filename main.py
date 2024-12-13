@@ -6,6 +6,7 @@ import re
 
 
 parser = argparse.ArgumentParser(description="This is a simple script to get the last analysis stats of an IP address from VirusTotal")
+parser.add_argument("-y", "--yes", help="Force yes", action="store_true")
 # IP Address File
 subparser = parser.add_subparsers(dest="mode")
 
@@ -34,7 +35,11 @@ def extract_ipv4_addresses(file_path:str):
         content = file.read()
     return ipv4_pattern.findall(content)
 
-
+def ask_continue(force_yes:bool=args.yes):
+    if not force_yes:
+        wanna_continue = input("Do you want to continue? (y/n): ")
+        if wanna_continue.lower() == "n":
+            quit()
 
 if not headers["X-Apikey"]:
     raise ValueError("API key not found. Please set the VT_API_KEY environment variable.")
@@ -72,10 +77,11 @@ def get_ip_analysis(headers, ip):
     except KeyError:
         if data["error"]["code"] == "QuotaExceededError":
             print("\033[91mQuota exceeded. Please try again later.\033[0m")
-            quit()
+            ask_continue()
         else:
             print("\033[91mSomethig went wrong. Please try again later.\033[0m")
-            quit()
+            wanna_continue = input("Do you want to continue? (y/n): ")
+            ask_continue()
     print(f"----------------IP: {ip} - {last_analysis_statistics}----------------")
     is_ytu(data)
     is_google(data)
