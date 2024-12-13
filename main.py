@@ -11,7 +11,7 @@ subparser = parser.add_subparsers(dest="mode")
 
 file_parser = subparser.add_parser("file", help="File mode")
 file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
-
+file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
 single_parser.add_argument("-i", "--ip", help="Single IP address", required=True)
@@ -33,6 +33,7 @@ def extract_ipv4_addresses(file_path:str):
     with open(file_path, 'r') as file:
         content = file.read()
     return ipv4_pattern.findall(content)
+
 
 
 if not headers["X-Apikey"]:
@@ -120,11 +121,14 @@ def check_file_analysis(headers, analysis_id):
 
 
 if args.mode == "file":
-    with open(args.file, 'r') as file:
-        ips = set(file.readlines())
-        for ip in ips:
-            ip = ip.strip()
-            get_ip_analysis(headers, ip)
+    if args.parse:
+        ips = extract_ipv4_addresses(args.file)
+    else:
+        with open(args.file, 'r') as file:
+            ips = set(file.readlines())
+    for ip in ips:
+        ip = ip.strip()
+        get_ip_analysis(headers, ip)    
 elif args.mode=="single":
     get_ip_analysis(headers, args.ip)
 elif args.mode=="upload":
