@@ -13,6 +13,7 @@ subparser = parser.add_subparsers(dest="mode")
 file_parser = subparser.add_parser("file", help="File mode")
 file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
 file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
+file_parser.add_argument("-o","--output", help="Output file")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
 single_parser.add_argument("-i", "--ip", help="Single IP address", required=True)
@@ -28,6 +29,13 @@ headers = {
     "X-Apikey": os.getenv("VT_API_KEY")
 }
 
+
+def write_ipv4_addresses(ipv4_addresses:list,file_path:str="ip_addresses.txt"):
+    if args.output:
+        file_path = args.output
+    with open(file_path, 'a') as file:
+        for ip in ipv4_addresses:
+            file.write(f"{ip}\n")
 
 def extract_ipv4_addresses(file_path:str):
     ipv4_pattern = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
@@ -132,9 +140,11 @@ if args.mode == "file":
     else:
         with open(args.file, 'r') as file:
             ips = set(file.readlines())
+    ips = list(set(ips))
+    write_ipv4_addresses(ips)
     for ip in ips:
         ip = ip.strip()
-        get_ip_analysis(headers, ip)    
+        get_ip_analysis(headers, ip)
 elif args.mode=="single":
     get_ip_analysis(headers, args.ip)
 elif args.mode=="upload":
