@@ -148,8 +148,10 @@ def check_file_analysis(headers, analysis_id):
             print(f"---------------- Error fetching file analysis: {data} ----------------")
             break
 
-
-if args.mode == "file":
+if len(vars(args)) < 1:
+    parser.print_help()
+    exit()
+elif args.mode == "file" and not (len(vars(args)) < 2):
     if args.parse:
         ips = extract_ipv4_addresses(args.file)
     else:
@@ -160,10 +162,9 @@ if args.mode == "file":
     for ip in ips:
         ip = ip.strip()
         get_ip_analysis(headers, ip)
-elif args.mode=="single":
+elif args.mode=="single" and not (len(vars(args)) < 2):
     get_ip_analysis(headers, args.ip)
-elif args.mode=="upload":
+elif args.mode=="upload" and not (len(vars(args)) < 2):
     check_file_upload(headers, args.upload)
 else:
-    print("Please provide either a file with IP addresses or a single IP address.")
-
+    parser.print_help()
