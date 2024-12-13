@@ -2,6 +2,8 @@ import requests
 import json
 import argparse
 import os
+import re
+
 
 parser = argparse.ArgumentParser(description="This is a simple script to get the last analysis stats of an IP address from VirusTotal")
 # IP Address File
@@ -24,6 +26,14 @@ headers = {
     "accept": "application/json",
     "X-Apikey": os.getenv("VT_API_KEY")
 }
+
+
+def extract_ipv4_addresses(file_path:str):
+    ipv4_pattern = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
+    with open(file_path, 'r') as file:
+        content = file.read()
+    return ipv4_pattern.findall(content)
+
 
 if not headers["X-Apikey"]:
     raise ValueError("API key not found. Please set the VT_API_KEY environment variable.")
