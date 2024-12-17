@@ -7,6 +7,9 @@ import re
 
 parser = argparse.ArgumentParser(description="This is a simple script to get the last analysis stats of an IP address from VirusTotal")
 parser.add_argument("-y", "--yes", help="Force yes", action="store_true")
+parser.add_argument("--compare-remote-ioc", help="Remote IOC list, do not scan the ip if it is in the IOC list, eg:https://gist.githubusercontent.com/foobar/random_hash_value/raw/random_hash_value/list.txt")
+parser.add_argument("-r","--report", help="Report file",default="report.txt")
+
 # IP Address File
 subparser = parser.add_subparsers(dest="mode")
 
@@ -14,7 +17,6 @@ file_parser = subparser.add_parser("file", help="File mode")
 file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
 file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
 file_parser.add_argument("-o","--output", help="Output file",default="ip_addresses.txt")
-file_parser.add_argument("-r","--report", help="Report file",default="report.txt")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
 single_parser.add_argument("-i", "--ip", help="Single IP address", required=True)
@@ -31,7 +33,9 @@ headers = {
 }
 
 
-def write_ipv4_addresses(ipv4_addresses:list,file_path:str=args.outout):
+def write_ipv4_addresses(ipv4_addresses:list,file_path:str=None):
+    if not file_path:
+        file_path = args.output
     with open(file_path, 'a') as file:
         for ip in ipv4_addresses:
             file.write(f"{ip}\n")
@@ -86,6 +90,12 @@ def is_malicious(data):
                 file.write("This IP is not malicious\n")
 
 def get_ip_analysis(headers, ip):
+    if args.compare_remote_ioc:
+        response = requests.get(args.compare_remote_ioc)
+        remote_list = set(response.text.split("\n"))
+        if ip in remote_list:
+            print(f"\033[91m{ip} is in the IOC list\033[0m")
+            return 0
     url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
     response = requests.get(url, headers=headers)
     data = loads(response.text)
