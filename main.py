@@ -5,25 +5,32 @@ from os import getenv
 import re
 
 
-parser = argparse.ArgumentParser(description="This is a simple script to get the last analysis stats of an IP address from VirusTotal")
+parser = argparse.ArgumentParser(
+    description="This is a simple script to get the last analysis stats of an IP address from VirusTotal")
 parser.add_argument("-y", "--yes", help="Force yes", action="store_true")
-parser.add_argument("--compare-remote-ioc", help="Remote IOC list, do not scan the ip if it is in the IOC list, eg:https://gist.githubusercontent.com/foobar/random_hash_value/raw/random_hash_value/list.txt")
-parser.add_argument("-r","--report", help="Report file",default="report.txt")
+parser.add_argument("--compare-remote-ioc",
+                    help="Remote IOC list, do not scan the ip if it is in the IOC list, eg:https://gist.githubusercontent.com/foobar/random_hash_value/raw/random_hash_value/list.txt")
+parser.add_argument("-r", "--report", help="Report file", default="report.txt")
 
 # IP Address File
 subparser = parser.add_subparsers(dest="mode")
 
 file_parser = subparser.add_parser("file", help="File mode")
-file_parser.add_argument("-f", "--file", help="File with IP addresses", required=True)
-file_parser.add_argument("-p","--parse", help="Parse file for IP addresses", action="store_true")
-file_parser.add_argument("-o","--output", help="Output file",default="ip_addresses.txt")
+file_parser.add_argument(
+    "-f", "--file", help="File with IP addresses", required=True)
+file_parser.add_argument(
+    "-p", "--parse", help="Parse file for IP addresses", action="store_true")
+file_parser.add_argument(
+    "-o", "--output", help="Output file", default="ip_addresses.txt")
 # Single IP Address
 single_parser = subparser.add_parser("single", help="Single mode")
-single_parser.add_argument("-i", "--ip", help="Single IP address", required=True)
+single_parser.add_argument(
+    "-i", "--ip", help="Single IP address", required=True)
 
 # File upload
 upload_parser = subparser.add_parser("upload", help="Upload mode")
-upload_parser.add_argument("-u", "--upload", help="File to upload", required=True)
+upload_parser.add_argument(
+    "-u", "--upload", help="File to upload", required=True)
 
 args = parser.parse_args()
 
@@ -33,32 +40,38 @@ headers = {
 }
 
 
-def write_ipv4_addresses(ipv4_addresses:list,file_path:str=None):
+def write_ipv4_addresses(ipv4_addresses: list, file_path: str = None):
     if not file_path:
         file_path = args.output
     with open(file_path, 'a') as file:
         for ip in ipv4_addresses:
             file.write(f"{ip}\n")
 
-def extract_ipv4_addresses(file_path:str):
+
+def extract_ipv4_addresses(file_path: str):
     ipv4_pattern = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
     with open(file_path, 'r') as file:
         content = file.read()
     return ipv4_pattern.findall(content)
 
-def ask_continue(force_yes:bool=args.yes):
+
+def ask_continue(force_yes: bool = args.yes):
     if not force_yes:
         wanna_continue = input("Do you want to continue? (y/n): ")
         if wanna_continue.lower() == "n":
             quit()
 
-if not headers["X-Apikey"]:
-    raise ValueError("API key not found. Please set the VT_API_KEY environment variable.")
 
-def check_whois(data,x:str,y:str=None):
-    if y ==None: y=x
+if not headers["X-Apikey"]:
+    raise ValueError(
+        "API key not found. Please set the VT_API_KEY environment variable.")
+
+
+def check_whois(data, x: str, y: str = None):
+    if y == None:
+        y = x
     whois = data["data"]["attributes"]["whois"]
-    try:    
+    try:
         if x.lower() in whois.lower():
             print(f"\033[94mThis IP belongs to {y}\033[0m")
             if args.report:
@@ -66,19 +79,21 @@ def check_whois(data,x:str,y:str=None):
                     file.write(f"This IP belongs to {y}\n")
     except KeyError:
         print(f"\033[91mWhois information not found for {x}\033[0m")
-    
-        
+
+
 def is_ytu(data):
-    check_whois(data,"yildiz","YTÜ")
-    
+    check_whois(data, "yildiz", "YTÜ")
+
+
 def is_google(data):
-    check_whois(data,"google","Google")
+    check_whois(data, "google", "Google")
+
 
 def is_malicious(data):
     malicious_value = data["data"]["attributes"]["last_analysis_stats"]["malicious"]
     suspicious_value = data["data"]["attributes"]["last_analysis_stats"]["suspicious"]
     harmless_value = data["data"]["attributes"]["last_analysis_stats"]["harmless"]
-    if (malicious_value > 0 or suspicious_value > 0) and  ((harmless_value > 20) and not (malicious_value > 20 or suspicious_value > 20)):
+    if (malicious_value > 0 or suspicious_value > 0) and ((harmless_value > 20) and not (malicious_value > 20 or suspicious_value > 20)):
         print("\033[91m\033[1mThis IP is malicious\033[0m")
         if args.report:
             with open(args.report, 'a') as file:
@@ -88,6 +103,7 @@ def is_malicious(data):
         if args.report:
             with open(args.report, 'a') as file:
                 file.write("This IP is not malicious\n")
+
 
 def get_ip_analysis(headers, ip):
     if args.compare_remote_ioc:
@@ -118,6 +134,7 @@ def get_ip_analysis(headers, ip):
     is_google(data)
     is_malicious(data)
 
+
 def check_file_upload(headers, file):
     url = "https://www.virustotal.com/api/v3/files"
     with open(file, "rb") as file:
@@ -127,10 +144,12 @@ def check_file_upload(headers, file):
 
         if response.status_code == 200:
             analysis_id = data["data"]["id"]
-            print(f"\033[94mFile uploaded successfully. Analysis ID: {analysis_id}\033[0m")
+            print(
+                f"\033[94mFile uploaded successfully. Analysis ID: {analysis_id}\033[0m")
             check_file_analysis(headers, analysis_id)
         else:
             print("\033[91mError uploading file: \033[0m", data)
+
 
 def check_file_analysis(headers, analysis_id):
     import time
@@ -143,18 +162,22 @@ def check_file_analysis(headers, analysis_id):
             status = data["data"]["attributes"]["status"]
             if status == "completed":
                 stats = data["data"]["attributes"]["stats"]
-                print(f"---------------- Analysis ID: {analysis_id} - Stats: {stats} ----------------")
+                print(
+                    f"---------------- Analysis ID: {analysis_id} - Stats: {stats} ----------------")
                 if stats["malicious"] > 0:
                     print("\033[91m\033[1mThis file is malicious\033[0m")
                 else:
                     print("\033[92mThis file is not malicious\033[0m")
                 break
             else:
-                print(f"---------------- Analysis in progress... Status: {status} ----------------")
+                print(
+                    f"---------------- Analysis in progress... Status: {status} ----------------")
                 time.sleep(10)
         else:
-            print(f"---------------- Error fetching file analysis: {data} ----------------")
+            print(
+                f"---------------- Error fetching file analysis: {data} ----------------")
             break
+
 
 if len(vars(args)) < 1:
     parser.print_help()
@@ -170,9 +193,9 @@ elif args.mode == "file" and not (len(vars(args)) < 2):
     for ip in ips:
         ip = ip.strip()
         get_ip_analysis(headers, ip)
-elif args.mode=="single" and not (len(vars(args)) < 2):
+elif args.mode == "single" and not (len(vars(args)) < 2):
     get_ip_analysis(headers, args.ip)
-elif args.mode=="upload" and not (len(vars(args)) < 2):
+elif args.mode == "upload" and not (len(vars(args)) < 2):
     check_file_upload(headers, args.upload)
 else:
     parser.print_help()
